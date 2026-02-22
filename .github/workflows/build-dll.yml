@@ -16,7 +16,7 @@ jobs:
       - name: Install CUDA
         uses: Jimver/cuda-toolkit@v0.2.16
         with:
-          cuda: '12.8.0' # Укажите версию, которая вам нужна
+          cuda: '13.1 ' # Укажите версию, которая вам нужна
           method: 'network'
 
       - name: Install OpenCV
