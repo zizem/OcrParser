@@ -14,9 +14,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install CUDA
-        uses: Jimver/cuda-toolkit@v0.2.16
+        uses: Jimver/cuda-toolkit@v0.2.30
         with:
-          cuda: '13.1 ' # Укажите версию, которая вам нужна
+          cuda: '13.1.0 ' # Укажите версию, которая вам нужна
           method: 'network'
 
       - name: Install OpenCV
