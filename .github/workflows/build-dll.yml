@@ -22,7 +22,7 @@ jobs:
       - name: Install OpenCV
         run: |
           # Скачиваем официальную сборку OpenCV для Windows
-          curl -L -o opencv.exe https://github.com/opencv/opencv/releases/download/4.8.0/opencv-4.8.0-windows.exe
+          curl -L -o opencv.exe https://github.com/opencv/opencv/releases/download/4.10.0/opencv-4.10.0-windows.exe
           7z x opencv.exe -o${{ github.workspace }}\opencv_dist
 
       - name: Configure CMake
