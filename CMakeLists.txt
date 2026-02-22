@@ -5,6 +5,7 @@ project(MyCudaProject LANGUAGES CXX CUDA)
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -allow-unsupported-compiler")
 
 
+find_package(CUDAToolkit REQUIRED)
 find_package(OpenCV REQUIRED)
 
 
