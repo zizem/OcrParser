@@ -1,0 +1,43 @@
+name: Build Windows CUDA DLL
+
+on:
+  push:
+    branches: [ "main" ] # Сборка будет запускаться при каждом пуше в main
+  workflow_dispatch:      # Позволяет запустить сборку вручную кнопкой
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install CUDA
+        uses: Jimver/cuda-toolkit@v0.2.16
+        with:
+          cuda: '13.1.115' # Укажите версию, которая вам нужна
+          method: 'network'
+
+      - name: Install OpenCV
+        run: |
+          # Скачиваем официальную сборку OpenCV для Windows
+          curl -L -o opencv.exe https://github.com/opencv/opencv/releases/download/4.8.0/opencv-4.8.0-windows.exe
+          7z x opencv.exe -o${{ github.workspace }}\opencv_dist
+
+      - name: Configure CMake
+        shell: bash
+        run: |
+          cmake -S . -B build -G "Visual Studio 17 2022" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DOpenCV_DIR="${{ github.workspace }}/opencv_dist/opencv/build" \
+            -DCUDA_ARCHITECTURES="75;80;86"
+
+      - name: Build
+        run: cmake --build build --config Release --target cuda_wrapper
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cuda_wrapper_windows
+          path: build/Release/cuda_wrapper.dll
