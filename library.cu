@@ -10,8 +10,8 @@
 using namespace std;
 using namespace cv;
 
-// 1. Внутренний CUDA-кернел (работает на GPU)
-__global__ void customInvertKernel(uchar* data, int width, int height, size_t step) {
+// This block give access to GPU kernel
+__global__ void Kernel(uchar* data, int width, int height, size_t step) {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -21,18 +21,18 @@ __global__ void customInvertKernel(uchar* data, int width, int height, size_t st
     }
 }
 
-// 2. Экспортируемая функция-обертка (работает на CPU, вызывается из Java)
+// This block its specific "Main" and link for .so file
 extern "C" {
     CUDA_LIB_EXPORT void processImage(const char* imagePath, const char* modelPath, const char* outputPath) {
 
-        // Загрузка изображения по переданному пути
+        // Download image
         const Mat img = imread(imagePath, IMREAD_COLOR);
         if (img.empty()) {
             cerr << "Error: Could not read image from " << imagePath << endl;
             return;
         }
 
-        // Настройка модели по переданному пути
+        // Use DNN and make calculation on GPU
         dnn_superres::DnnSuperResImpl res_impl;
         res_impl.readModel(modelPath);
         res_impl.setModel("lapsrn", 8);
@@ -45,15 +45,16 @@ extern "C" {
         gpu_img.upload(img, stream);
         stream.waitForCompletion();
 
-        // Super-resolution on CPU (т.к. dnn_superres не ест GpuMat)
+
         Mat cpu_img, cpu_dst;
         gpu_img.download(cpu_img);
         res_impl.upsample(cpu_img, cpu_dst);
 
-        // Возвращаем на GPU
+        // Return result after upscale to GPU, DNN dont have GPUmat ;(
         gpu_img.upload(cpu_dst, stream);
         cuda::GpuMat gpu_grey;
 
+        // Convert to grayscale + threshold for letters + morphFilter
         cuda::cvtColor(gpu_img, gpu_grey, COLOR_BGR2GRAY, 0, stream);
         cuda::threshold(gpu_grey, gpu_grey, 115, 255, ADAPTIVE_THRESH_MEAN_C,  stream);
 
@@ -63,10 +64,10 @@ extern "C" {
         );
         morphFilter->apply(gpu_grey, gpu_grey, stream);
 
-        // Подготовка к вызову нашего кастомного кернела
+        // Use ALL performance our GPU
         int minGridSize;
         int blockSize;
-        cudaOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, customInvertKernel, 0, 0);
+        cudaOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, Kernel, 0, 0);
 
         int dimX = 32;
         int dimY = blockSize / dimX;
@@ -79,8 +80,8 @@ extern "C" {
         dim3 grid((gpu_grey.cols + threads.x - 1) / threads.x,
                   (gpu_grey.rows + threads.y - 1) / threads.y);
 
-        // Вызов CUDA-кернела
-        customInvertKernel<<<grid, threads, 0, static_cast<cudaStream_t>(stream.cudaPtr())>>>(
+        // Call our Kernel
+        Kernel<<<grid, threads, 0, static_cast<cudaStream_t>(stream.cudaPtr())>>>(
             gpu_grey.data,
             gpu_grey.cols,
             gpu_grey.rows,
@@ -89,7 +90,7 @@ extern "C" {
 
         stream.waitForCompletion();
 
-        // Сохранение результата
+        // Save image(debug)
         Mat result;
         gpu_grey.download(result);
         imwrite(outputPath, result);
