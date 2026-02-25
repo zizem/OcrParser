@@ -72,9 +72,10 @@ public class ScreenSelector extends JFrame {
 
 
             BufferedImage screenshot = robot.createScreenCapture(area);
+
             System.out.println("Скриншот сделан! Размер: " + screenshot.getWidth() + "x" + screenshot.getHeight());
 
-            File file = new File("/home/zizen/Cource/JavaFinal/src/main/java/NewSeria.png");
+            File file = new File("output.png");
             ImageIO.write(screenshot, "png", file);
 
 

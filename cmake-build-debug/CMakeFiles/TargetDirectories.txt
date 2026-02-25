@@ -1,0 +1,3 @@
+C:/Users/zizem/OneDrive/Desktop/cource/cmake-build-debug/CMakeFiles/cource.dir
+C:/Users/zizem/OneDrive/Desktop/cource/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/zizem/OneDrive/Desktop/cource/cmake-build-debug/CMakeFiles/rebuild_cache.dir
