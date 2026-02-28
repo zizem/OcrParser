@@ -7,5 +7,5 @@
 #endif
 
 extern "C" {
-    LIB_EXPORT void processImage(const char* imagePath, const char* modelPath, const char* outputPath);
+    LIB_EXPORT void processImage(const unsigned char* imageBuffer, int width, int height, int channels, const char* modelPath, const char* outputPath);
 }

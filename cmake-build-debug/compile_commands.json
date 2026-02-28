@@ -1,8 +1,0 @@
-[
-{
-  "directory": "C:/Users/zizem/OneDrive/Desktop/cource/cmake-build-debug",
-  "command": "C:\\Users\\zizem\\AppData\\Local\\Programs\\CLion\\bin\\mingw\\bin\\g++.exe -Dcource_EXPORTS -isystem D:/opencv/mybuild/install/include -g -std=gnu++20 -fdiagnostics-color=always -o CMakeFiles\\cource.dir\\library.cpp.obj -c C:\\Users\\zizem\\OneDrive\\Desktop\\cource\\library.cpp",
-  "file": "C:/Users/zizem/OneDrive/Desktop/cource/library.cpp",
-  "output": "C:/Users/zizem/OneDrive/Desktop/cource/cmake-build-debug/CMakeFiles/cource.dir/library.cpp.obj"
-}
-]
